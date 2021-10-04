@@ -1,4 +1,4 @@
-package enumeration;
+package com.cosine.rpc.enumeration;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

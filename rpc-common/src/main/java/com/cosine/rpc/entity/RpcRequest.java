@@ -1,4 +1,4 @@
-package entity;
+package com.cosine.rpc.entity;
 
 import lombok.Builder;
 import lombok.Data;

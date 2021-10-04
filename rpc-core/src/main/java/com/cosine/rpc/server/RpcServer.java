@@ -1,6 +1,6 @@
 package com.cosine.rpc.server;
 
-import com.cosine.rpc.client.RpcClient;
+import com.cosine.rpc.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,33 +19,45 @@ import java.util.concurrent.*;
 public class RpcServer {
     public static final Logger logger = LoggerFactory.getLogger(RpcServer.class);
 
+    /** 线程池相关 */
+    private static final int CORE_POOL_SIZE = 5;
+    private static final int MAXIMUM_POOL_SIZE = 50;
+    private static final int KEEP_ALIVE_TIME = 60;
+    private static final int BLOCKING_QUEUE_CAPACITY = 100;
     private final ExecutorService threadPool;
 
-    public RpcServer() {
-        // 核心线程数量
-        int corePoolSize = 5;
-        // 最大线程数量
-        int maximumPoolSize = 50;
-        // 非核心线程存活时间
-        long keepAliveTime = 60;
-        // 工作队列
-        BlockingQueue<Runnable> workingQueue = new ArrayBlockingQueue<>(100);
-        threadPool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workingQueue, Executors.defaultThreadFactory());
+    private RequestHandler requestHandler = new RequestHandler();
+    private final ServiceRegistry serviceRegistry;
+
+    public RpcServer(ServiceRegistry serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
+        threadPool = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, new ArrayBlockingQueue<>(BLOCKING_QUEUE_CAPACITY), Executors.defaultThreadFactory());
     }
 
-    public void register(Object service, int port) {
+    /**
+     * @Description 启动服务器，监听某个端口
+     * @Param [port]
+     * @return void
+     * @Author cosine
+     * @Date 2021/10/4
+     */
+    public void start(int port) {
+        ServerSocket serverSocket = null;
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(port);
             logger.info("服务器正在启动...");
             Socket socket;
             // BIO的网络模型，来一个socket连接就创建一个新的工作线程
             while ((socket = serverSocket.accept()) != null) {
-                logger.info("客户端连接成功！IP为："+ socket.getInetAddress());
+                logger.info("消费者连接: {}:{}", socket.getInetAddress(), socket.getPort());
                 // 给到一个工作线程
-                threadPool.execute(new WorkerThread(service, socket));
+                threadPool.execute(new RequestHandlerThread(socket, requestHandler, serviceRegistry));
             }
+            // 关闭线程池
+            threadPool.shutdown();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("服务器启动时有错误发生:", e);
         }
+
     }
 }

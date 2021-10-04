@@ -1,6 +1,6 @@
-package entity;
+package com.cosine.rpc.entity;
 
-import enumeration.ResponseCode;
+import com.cosine.rpc.enumeration.ResponseCode;
 import lombok.Data;
 
 import java.io.Serializable;

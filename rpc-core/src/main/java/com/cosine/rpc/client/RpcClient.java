@@ -1,6 +1,6 @@
 package com.cosine.rpc.client;
 
-import entity.RpcRequest;
+import com.cosine.rpc.entity.RpcRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

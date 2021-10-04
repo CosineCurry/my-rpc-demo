@@ -1,7 +1,7 @@
 package com.cosine.rpc.client;
 
-import entity.RpcRequest;
-import entity.RpcResponse;
+import com.cosine.rpc.entity.RpcRequest;
+import com.cosine.rpc.entity.RpcResponse;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -32,6 +32,7 @@ public class RpcClientProxy implements InvocationHandler {
      */
     @SuppressWarnings("unchecked")
     public <T> T getProxy(Class<T> clazz) {
+        // 三个参数分别为委托类的类加载器，委托类实现的接口集，处理类本身
         return (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[]{clazz}, this);
     }
 

@@ -1,6 +1,8 @@
 package com.cosine.test;
 
 import com.cosine.rpc.api.HelloService;
+import com.cosine.rpc.registry.DefaultServiceRegistry;
+import com.cosine.rpc.registry.ServiceRegistry;
 import com.cosine.rpc.server.RpcServer;
 
 /**
@@ -12,7 +14,12 @@ import com.cosine.rpc.server.RpcServer;
 public class TestServer {
     public static void main(String[] args) {
         HelloService helloService = new HelloServiceImpl();
-        RpcServer rpcServer = new RpcServer();
-        rpcServer.register(helloService, 9001);
+        // 解耦，可以替换掉ServiceRegistry的具体实现类从而不影响方法本身
+        ServiceRegistry serviceRegistry = new DefaultServiceRegistry();
+        // 进行服务注册
+        serviceRegistry.register(helloService);
+        RpcServer rpcServer = new RpcServer(serviceRegistry);
+        // 服务启动
+        rpcServer.start(9001);
     }
 }
