@@ -15,13 +15,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="rpc-common" target="1.8" />
-      <module name="rpc-core" target="1.8" />
       <module name="rpccommon" target="1.8" />
       <module name="rpccore" target="1.8" />
       <module name="test" target="1.8" />
-      <module name="test-client" target="1.8" />
-      <module name="test-server" target="1.8" />
       <module name="test0-client" target="1.8" />
       <module name="testclient" target="1.8" />
       <module name="testserver" target="1.8" />
