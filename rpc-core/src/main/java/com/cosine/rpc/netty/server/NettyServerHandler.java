@@ -40,7 +40,10 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
             String interfaceName = rpcRequest.getInterfaceName();
             Object service = serviceRegistry.getService(interfaceName);
             Object result = requestHandler.handle(rpcRequest, service);
+            // 一个 ChannelFuture 代表了一个还没有发生的 I/O 操作。
+            // 这意味着任何一个请求操作都不会马上被执行，因为在 Netty 里所有的操作都是异步的。
             ChannelFuture future = channelHandlerContext.writeAndFlush(RpcResponse.success(result));
+            // 由监听器通知我们 I/O 操作完成
             future.addListener(ChannelFutureListener.CLOSE);
         } finally {
             ReferenceCountUtil.release(rpcRequest);

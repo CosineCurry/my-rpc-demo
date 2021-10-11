@@ -1,19 +1,21 @@
 package com.cosine.test;
 
+import com.cosine.rpc.RpcClient;
+import com.cosine.rpc.RpcClientProxy;
 import com.cosine.rpc.api.HelloObject;
 import com.cosine.rpc.api.HelloService;
-import com.cosine.rpc.client.RpcClientProxy;
+import com.cosine.rpc.socket.client.SocketClient;
 
 /**
- * @Description: 测试客户端
+ * @Description: 测试用Socket消费者（客户端）
  * @Author: cosine
- * @Date: 2021/10/2 8:33 下午
+ * @Date: 2021/10/5 9:10 下午
  * @Version: 1.0.0
  */
-public class TestClient {
-
+public class SocketTestClient {
     public static void main(String[] args) {
-        RpcClientProxy proxy = new RpcClientProxy("127.0.0.1", 9001);
+        RpcClient client = new SocketClient("127.0.0.1", 9001);
+        RpcClientProxy proxy = new RpcClientProxy(client);
         // 代理共有接口类 HelloService类
         HelloService helloService = proxy.getProxy(HelloService.class);
         HelloObject object = new HelloObject(13, "This is a message");

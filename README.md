@@ -18,3 +18,21 @@ java自带的传输格式，将这个对象传到服务端。<br>
 将传统的BIO方式传输换成效率更高的NIO方式，使用较为简单的Netty进行实现。还实现了一个通用的序列化接口，为多种序列化支持做准备，并且自定义了
 传输的协议。传输的包首部加上魔数（4字节）、包类型（请求或响应，4字节）、序列化类型（4字节）、数据长度（4字节）。如果魔数不相同，拒绝收包。
 定义了数据长度是为了防止粘包。
+## Kryo序列化
+这个基于 JSON 的序列化器有一个毛病，就是在某个类的属性反序列化时，如果属性声明为 Object 的，就会造成反序列化出错，通常会把 Object 属
+性直接反序列化成 String 类型，就需要其他参数辅助序列化。并且，JSON 序列化器是基于字符串（JSON 串）的，占用空间较大且速度较慢。<br>
+Kryo 是一个快速高效的 Java 对象序列化框架，主要特点是高性能、高效和易用。最重要的两个特点，一是基于字节的序列化，对空间利用率较高，
+在网络传输时可以减小体积；二是序列化时记录属性对象的类型信息，这样在反序列化时就不会出现之前的问题了。<br>
+Kryo可能存在线程安全的问题，我们使用ThreadLocal避免之。
+```java
+private static final ThreadLocal<Kryo> kryoThreadLocal = ThreadLocal.withInitial(() -> {
+        Kryo kryo = new Kryo();
+        kryo.register(RpcResponse.class);
+        kryo.register(RpcRequest.class);
+        // 支持循环引用
+        kryo.setReferences(true);
+        // 关闭注册行为
+        kryo.setRegistrationRequired(false);
+        return kryo;
+    });
+```
